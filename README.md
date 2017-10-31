@@ -20,7 +20,7 @@ Rice BIOE 421 Final Project
 
 ## Abstract
 
-## Voice Trainer
+### Voice Trainer
 
 ## Hardware:
 Circuit Playground (CP), color coded legend for notes, and GUI potentially
