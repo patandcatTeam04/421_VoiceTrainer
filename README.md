@@ -22,16 +22,16 @@ Rice BIOE 421 Final Project
 
 ### Voice Trainer
 
-## Hardware:
+### Hardware:
 Circuit Playground (CP), color coded legend for notes, and GUI potentially
 
-## Motivation:
+### Motivation:
 To improve musical knowledge and singing abilities
 
-## Function:
+### Function:
 The CP plays a note in a full octave range -- CDEFGAB including sharps and flats. The user must match this tone with their voice. The CP’s Sound Sensor receives the microphone input, which corresponds to a voltage. We will use the built-in FFT function (CircuitPlayground.mic.fft) to convert this voltage into the frequency domain. This frequency corresponds to a musical note that we code into the code's note database of several octaves.
 We will also set thresholds according to the user's experience. For example, if someone is really bad at singing, the CP will consider an A-flat response to an output of A as acceptable. (i.e. half steps are acceptable, in musical terminology). When the user can repeat a certain amount of notes correctly within this threshold, the CP modifies its frequency thresholds for accuracy to become more precise, until the user can match pitch well.
 
-## Sophistication:
+### Sophistication:
 Next-level prototypes will include the reverse process. Each note corresponds to a color on the CP’s LEDs, and using the manual, the user will see the color and sing the corresponding note without a sound cue. For example, if a G is green according to the color-coded note legend, the user sings a B upon seeing the green LED light up. This sophistication captures the difference between vocal recognition (first scenario) and vocal recall. 
 
