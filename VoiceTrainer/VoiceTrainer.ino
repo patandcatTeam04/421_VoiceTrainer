@@ -1,5 +1,5 @@
 
-// Voice Trainer 
+/ Voice Trainer
 // The purpose of this program is to train the human voice to match and recall pitch.
 // The CircuitPlayground uses its speakers to play a musical note, then records the user's voice, performs an fft and determines if the notes match.
 // As of 11/09 this code gives user feedback after 2s of recording the voice (not in real time), and outputs feedback only in Serial
@@ -23,38 +23,54 @@ int ecount = 0; // this is an overall error counter
 #define BINS  32          // The number of FFT frequency bins
 #define FRAMES 4           // This many FFT cycles are averaged 
 
-// Define frequency vector that stores each note as a frequency
+// Define frequency matrix that stores each frequency that will be played by the CP as well as the row index of the corresponding LED found in another matrix
 //double freq[] = {293.66, 329.63, 349.23, 392, 440, 493.88, 523.25, 587.33, 659.25, 698.96, 783.99, 880, 987.77, 1046.5, 1174.66, 1318.51, 1396.91, 1567.98, 1760, 1975.53, 2093, 2349.32, 2637.02, 2793.83, 3135.96};
 //int freq[] = {293, 329, 349, 392, 440, 493, 523, 587, 659, 698, 783, 880, 987, 1046, 1174, 1318, 1396, 1567, 1760, 1975, 2093, 2349, 2637, 2793, 3135};
-int freq[] = {293, 329, 349, 392, 440, 493, 523, 587, 659, 698, 783, 880, 987};
+int freq[13][2] = {
+  {293, 7},
+  {329, 6},
+  {349, 5},
+  {392, 4},
+  {440, 2},
+  {493, 1},
+  {523, 0},
+  {587, 7},
+  {659, 6},
+  {698, 5},
+  {783, 4},
+  {880, 2},
+  {987, 1},
+};
+
+// maps LED numbers and their RGB values to notes
+int note2LED[8][5] = {
+  {0, 255, 0, 0}, // LED#: 0, Color: Red, note: C
+  {2, 255, 102, 255}, // LED#: 2, Color: Pink, note: B
+  {3, 204, 102, 0}, // LED#: 3, Color: Orange, note: A
+  {4, 255, 255, 51}, // LED#: 4, Color: Yellow, note: G#
+  {5, 0, 255, 0}, // LED#: 5, Color: Green, note: G
+  {7, 0, 0, 255}, // LED#: 7, Color: Blue, note: F
+  {8, 127, 0, 255}, // LED#: 8, Color: Violet, note: E
+  {9, 255, 255, 255}, // LED#: 9, Color: White, note: D
+};
+
 
 //Map bins to frequencies of the human vocal range
-
-/*
-  bin2[] = {0,200}
-  bin3[] = {200,400};
-  bin4[] = {400,600};
-  bin5[] = {600,700};
-  bin7[] = {700,1000};
-  bin10[]= {1000,1500};
-  bin13[] = {1500,2000};
-  bin20[] = {2000,3000};
-*/
-
-int bin2freq[12][2] = {
-  {2, 0},
-  {3, 390},
-  {4, 530},
-  {5, 670},
-  {6, 820},
-  {7, 970}, //iffy
-  {8, 1150},
-  {9, 1260},
-  {10, 1410},
-  {11, 1580},
-  {12, 1720},
-  {13, 1900},
+int bin2freq[12][5] = {
+  {2, 0}, // anything lower than G4 (? notes)
+  {3, 390}, // G4 - C5 (6 notes)
+  {4, 530}, // C#5 - E5 (4 notes)
+  {5, 670}, // F5 - G5 (3 notes)
+  {6, 820}, // G#5 - A#5 (3 notes)
+  {7, 970}, // B5 - C#6 (3 notes)
+  {8, 1150}, // D6 - D#6 (2 notes)
+  {9, 1260}, // E6 - F6 (2 notes)
+  {10, 1410}, // F#6 - G6 (2 notes)
+  {11, 1580}, // G#6 ( 1 note)
+  {12, 1720}, // A6 - A#6 (2 notes)
+  {13, 1900}, // anything higher than B6 (? notes)
 };
+
 
 
 void setup() {
@@ -76,20 +92,21 @@ void loop() {
   // FIRST, generate a random number. This will be your new musical note
   // however only generate a new random number in the sequence, if it is a new round (i.e. you have zero errors)
   if (ecount == 0) {
-    randNumber = random(1, 14); //chooses a random number between 1 and 4 and append that value to randNumber vector (our memory)
+    randNumber = random(0, 12); //chooses a random number between 0 and 12; This will correspond to the frequency played by the CP
   }
   delay(2000);
 
+  // for testing purposes: print the random number and its corresponding frequency value
   Serial.print("RandNumber =  ");
   Serial.println(randNumber);
   Serial.print("Frequency =  ");
-  Serial.println(freq[randNumber]);
+  Serial.println(freq[randNumber][0]);
 
 
 
   // SECOND, play the note
-  CircuitPlayground.setPixelColor(0, 255, 0, 0);
-  CircuitPlayground.playTone(freq[randNumber], 2000);
+  CircuitPlayground.setPixelColor(note2LED[freq[randNumber][1]][0], note2LED[freq[randNumber][1]][1], note2LED[freq[randNumber][1]][2], note2LED[freq[randNumber][1]][3] );
+  CircuitPlayground.playTone(freq[randNumber][0], 2000);
   delay(500);
   CircuitPlayground.clearPixels();
 
@@ -118,8 +135,8 @@ void loop() {
     CircuitPlayground.setPixelColor(8, 255, 255, 255);
     CircuitPlayground.setPixelColor(9, 255, 255, 255);
     CircuitPlayground.setPixelColor(10, 255, 255, 255);
-    
-    
+
+
     // add to whileloop count
     whilecnt = whilecnt + 1;
 
@@ -137,7 +154,7 @@ void loop() {
 
     // Complete calculation of averages for FFT spectra
     for (i = 0; i < BINS; i++) {            // For each output bin average
-      avg[i] = avg[i] / FRAMES;            //  divide about the number of values aaveraged
+      avg[i] = avg[i] / FRAMES;             //  divide about the number of values aaveraged
     }
 
     // determine dominant frequency
@@ -155,9 +172,11 @@ void loop() {
     currentMillis = millis();
   } // end of the fft while loop
 
+
+
   // turns off LED so user knows CP is done recording voice
   CircuitPlayground.clearPixels();
-  
+
   // this actually calculates the average index value and therefore the average frequency for the sampling period
   maxIndex_avg = maxIndex_avg / whilecnt;
   Serial.print("You voice's bin =  ");
@@ -165,17 +184,15 @@ void loop() {
 
   // converting frequency played by CP to a bin number
   i = 0;
-  
-  while (freq[randNumber] > bin2freq[i][1]) {
+
+  while (freq[randNumber][0] > bin2freq[i][1]) {
     i = i + 1;
-    //Serial.print("our i =  ");
-    //Serial.println(i);
   }
   Serial.print("The Cp tone's bin: ");
-  Serial.println(bin2freq[i-1][0]);
-  
+  Serial.println(bin2freq[i - 1][0]);
+
   //determine if what you sang is within the frequency range played by the CP
-  if (maxIndex_avg != bin2freq[i-1][0]) {
+  if (maxIndex_avg != bin2freq[i - 1][0]) {
     ecount = ecount + 1;
     noerror = 0;
     Serial.println("you bad");
@@ -189,7 +206,7 @@ void loop() {
     maxtime = maxtime + 650; // give the user a bit more time for each new round so they can press more buttons
     Serial.println("You're a star!");
     Serial.println(" ");
-    
+
     //reset the game!
     noerror = 1;
     ecount = 0;
