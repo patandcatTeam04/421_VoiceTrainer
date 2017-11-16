@@ -46,7 +46,75 @@ CircuitPlayground.setPixelColor(0, 255,0,255), // LED#: 1, Color: Pink, note: C
 
 
 //  CircuitPlayground.setPixelColor(4, 255, 255, 51), // LED#: 4, Color: Yellow, note: G#
-//    delay(3000);
+//    delay(3000);// Neopixel Color Test
+// This program displays a full spectrum of LEDs so that we can display different
+// LED color intensities for the same note in different octaves.
+
+#include <Adafruit_CircuitPlayground.h>
+
+void setup() {
+  Serial.begin(9600); //setup serial monitor
+  CircuitPlayground.begin(); // set up CircuitPlayground
+}
+
+void loop() {
+
+  // FIRST, display a color for each pixel that corresponds to a note in VoiceTrainer.ino
+  //Other than C, each note has TWO shades, because it occurs twice in the bin setup with pre-set vocal ranges we have in VoiceTrainer.ino
+  CircuitPlayground.setPixelColor(0, 255, 0, 255), // LED#: 1, Color: Pink, note: C
+  delay(2000);
+  CircuitPlayground.clearPixels();
+
+  CircuitPlayground.setPixelColor(2, 255, 99, 80), // LED#: 2, Color: Red, note: B
+  delay(2000);
+  CircuitPlayground.clearPixels();
+  CircuitPlayground.setPixelColor(2, 255, 0, 0), // LED#: 2, Color: Red, note: B
+  delay(2000);
+  CircuitPlayground.clearPixels();
+
+  CircuitPlayground.setPixelColor(3, 224, 102, 0), // LED#: 3, Color: Orange, note: A
+  delay(2000);
+  CircuitPlayground.clearPixels();
+  CircuitPlayground.setPixelColor(3, 255, 69, 0), // LED#: 3, Color: Orange, note: A
+  delay(2000);
+  CircuitPlayground.clearPixels();
+
+  //THIS we decided not to use because the bin that G# falls in on the VoiceTrainer.ino code is a higher frequency than we ever sing
+  //CircuitPlayground.setPixelColor(4, 255, 255, 51), // LED#: 4, Color: Yellow, note: G#
+  //delay(3000);
+  //CircuitPlayground.clearPixels();
+  //CircuitPlayground.setPixelColor(4, 218, 165, 32), // LED#: 4, Color: Yellow, note: G#
+  //delay(3000);
+  //CircuitPlayground.clearPixels();
+
+  CircuitPlayground.setPixelColor(5, 60, 185, 113), // LED#: 5, Color: Green, note: G
+  delay(2000);
+  CircuitPlayground.clearPixels();
+  CircuitPlayground.setPixelColor(5, 0, 255, 0), // LED#: 5, Color: Green, note: G
+  delay(2000);
+  CircuitPlayground.clearPixels();
+
+  CircuitPlayground.setPixelColor(7, 25, 25, 112), // LED#: 7, Color: Blue, note: F
+  delay(2000);
+  CircuitPlayground.clearPixels();
+  CircuitPlayground.setPixelColor(7, 0, 0, 255), // LED#: 7, Color: Blue, note: F
+  delay(2000);
+  CircuitPlayground.clearPixels();
+
+  CircuitPlayground.setPixelColor(8, 75, 0, 130), // LED#: 8, Color: Violet, note: E
+  delay(2000);
+  CircuitPlayground.clearPixels();
+  CircuitPlayground.setPixelColor(8, 200, 0, 200), // LED#: 8, Color: Violet, note: E
+  delay(2000);
+  CircuitPlayground.clearPixels();
+
+  CircuitPlayground.setPixelColor(9, 30, 30, 30), // LED#: 9, Color: White, note: D
+  delay(2000);
+  CircuitPlayground.clearPixels();
+  CircuitPlayground.setPixelColor(9, 255, 255, 255), // LED#: 9, Color: White, note: D
+  delay(2000);
+  CircuitPlayground.clearPixels();
+}
 //       CircuitPlayground.clearPixels();
 //  CircuitPlayground.setPixelColor(4, 218,165,32), // LED#: 4, Color: Yellow, note: G#
 //   delay(3000);
