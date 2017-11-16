@@ -2,7 +2,6 @@
 // This program displays a full spectrum of LEDs so that we can display different
 // LED color intensities for the same note in different octaves.
 
-
 #include <Adafruit_CircuitPlayground.h>
 
 // maps LED numbers and their RGB values to notes, for reference
@@ -21,15 +20,13 @@ int note2LED[8][5] = {
 void setup() {
   Serial.begin(9600); //setup serial monitor
   CircuitPlayground.begin(); // set up CircuitPlayground
- // CircuitPlayground.setPixelColor(); //set up the pixels
 }
 
-//ENTER THE TRAINER!!!!
 void loop() {
 
   // FIRST, display a color for each pixel that corresponds to a note in VoiceTrainer.ino
   //Other than C, each note has TWO shades, because it occurs twice in the bin setup with pre-set vocal ranges we have in VoiceTrainer.ino
-  CircuitPlayground.setPixelColor(0, 255,102,255), // LED#: 0, Color: Pink, note: C
+CircuitPlayground.setPixelColor(0, 255,0,255), // LED#: 1, Color: Pink, note: C
   delay(3000);
   CircuitPlayground.clearPixels();
 
@@ -48,42 +45,41 @@ void loop() {
 //   CircuitPlayground.clearPixels();
 
 
-  CircuitPlayground.setPixelColor(4, 255, 255, 51), // LED#: 4, Color: Yellow, note: G#
-    delay(3000);
-  CircuitPlayground.setPixelColor(218,165,32), // LED#: 4, Color: Yellow, note: G#
-/   delay(3000);
-//
+//  CircuitPlayground.setPixelColor(4, 255, 255, 51), // LED#: 4, Color: Yellow, note: G#
+//    delay(3000);
+//       CircuitPlayground.clearPixels();
+//  CircuitPlayground.setPixelColor(4, 218,165,32), // LED#: 4, Color: Yellow, note: G#
+//   delay(3000);
+//       CircuitPlayground.clearPixels();
+
 //  
-//  CircuitPlayground.setPixelColor(5, 0, 255, 0), // LED#: 5, Color: Green, note: G
-//  delay(3000);
-//
-//  
-//  CircuitPlayground.setPixelColor(7, 0, 0, 255), // LED#: 7, Color: Blue, note: F
-//  delay(3000);
-//
-//  
-//  CircuitPlayground.setPixelColor(8, 127, 0, 255), // LED#: 8, Color: Violet, note: E
-//  delay(3000);
+// CircuitPlayground.setPixelColor(5, 0, 255, 0), // LED#: 5, Color: Green, note: G
+// delay(3000);
+//     CircuitPlayground.clearPixels();
+//     CircuitPlayground.setPixelColor(5, 60,185,113), // LED#: 5, Color: Green, note: G
+// delay(3000);
+//     CircuitPlayground.clearPixels(); 
+//CircuitPlayground.setPixelColor(7, 25,25,112), // LED#: 7, Color: Blue, note: F
+//delay(3000);
+//CircuitPlayground.clearPixels(); 
+//CircuitPlayground.setPixelColor(7, 0, 0, 255), // LED#: 7, Color: Blue, note: F
+//delay(3000);
+//CircuitPlayground.clearPixels(); 
+
+CircuitPlayground.setPixelColor(8, 75,0,130), // LED#: 8, Color: Violet, note: E
+delay(3000);
+CircuitPlayground.clearPixels();
+//CircuitPlayground.setPixelColor(8, 127, 0, 255), // LED#: 8, Color: Violet, note: E
+//delay(3000);
+//CircuitPlayground.clearPixels();
+CircuitPlayground.setPixelColor(8, 139,0,139), // LED#: 8, Color: Violet, note: E
+delay(3000);
+CircuitPlayground.clearPixels();
+
 //
 //  
 //  CircuitPlayground.setPixelColor(9, 255, 255, 255), // LED#: 9, Color: White, note: D
 //  
 // // CircuitPlayground.setPixelColor();
 //  delay(3000);
-
-  CircuitPlayground.clearPixels();
-
-    // turn on all LEDs so user knows when their voice is being recorded
-/*    CircuitPlayground.setPixelColor(0, 255, 255, 255);
-    CircuitPlayground.setPixelColor(1, 255, 255, 255);
-    CircuitPlayground.setPixelColor(2, 255, 255, 255);
-    CircuitPlayground.setPixelColor(3, 255, 255, 255);
-    CircuitPlayground.setPixelColor(4, 255, 255, 255);
-    CircuitPlayground.setPixelColor(5, 255, 255, 255);
-    CircuitPlayground.setPixelColor(6, 255, 255, 255);
-    CircuitPlayground.setPixelColor(7, 255, 255, 255);
-    CircuitPlayground.setPixelColor(8, 255, 255, 255);
-    CircuitPlayground.setPixelColor(9, 255, 255, 255);
-    CircuitPlayground.setPixelColor(10, 255, 255, 255);
-    */
 }
