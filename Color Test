@@ -1,0 +1,3 @@
+// Neopixel Color Test
+// This program displays a full spectrum of LEDs so that we can display different
+// LED color intensities for the same note in different octaves.
