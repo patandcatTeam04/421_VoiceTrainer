@@ -1,5 +1,5 @@
 
-/ Voice Trainer
+// Voice Trainer
 // The purpose of this program is to train the human voice to match and recall pitch.
 // The CircuitPlayground uses its speakers to play a musical note, then records the user's voice, performs an fft and determines if the notes match.
 // As of 11/09 this code gives user feedback after 2s of recording the voice (not in real time), and outputs feedback only in Serial
@@ -10,7 +10,8 @@
 
 // Define variables to keep track of rounds and sequence
 int seqNumber; //keeps track of which round youre in the game
-int randNumber;
+int randNumber; // this is the random number to generate a random note
+bool slideSwitch; // this is a boolean to use the slide switch to indicate whether the user would want recognition or recall mode
 
 // Define variables to keep track of time to accept user input
 int maxtime = 2000; // the game will only wait 3 seconds on the first round; This will be increased with ea. advancing round to account for longer sequences
@@ -23,52 +24,57 @@ int ecount = 0; // this is an overall error counter
 #define BINS  32          // The number of FFT frequency bins
 #define FRAMES 4           // This many FFT cycles are averaged 
 
-// Define frequency matrix that stores each frequency that will be played by the CP as well as the row index of the corresponding LED found in another matrix
+// Define frequency matrix that stores each frequency that will be played by the CP as well as the row index of the corresponding LED found in the note2LED matrix
 //double freq[] = {293.66, 329.63, 349.23, 392, 440, 493.88, 523.25, 587.33, 659.25, 698.96, 783.99, 880, 987.77, 1046.5, 1174.66, 1318.51, 1396.91, 1567.98, 1760, 1975.53, 2093, 2349.32, 2637.02, 2793.83, 3135.96};
 //int freq[] = {293, 329, 349, 392, 440, 493, 523, 587, 659, 698, 783, 880, 987, 1046, 1174, 1318, 1396, 1567, 1760, 1975, 2093, 2349, 2637, 2793, 3135};
 int freq[13][2] = {
-  {293, 7},
-  {329, 6},
-  {349, 5},
-  {392, 4},
-  {440, 2},
-  {493, 1},
-  {523, 0},
-  {587, 7},
-  {659, 6},
-  {698, 5},
-  {783, 4},
-  {880, 2},
-  {987, 1},
+  {293, 0}, //D4
+  {329, 1}, //E4
+  {349, 2},  //F4
+  {392, 3},  //G4
+  {440, 4},  //A4
+  {493, 5},  //B4
+  {523, 6},  //C5
+  {587, 7},  //D5
+  {659, 8},  //E5
+  {698, 9},  //F5
+  {783, 10},  //G5
+  {880, 11},  //A5
+  {987, 12},  //B5
 };
 
-// maps LED numbers and their RGB values to notes
-int note2LED[8][5] = {
-  {0, 255, 0, 0}, // LED#: 0, Color: Red, note: C
-  {2, 255, 102, 255}, // LED#: 2, Color: Pink, note: B
-  {3, 204, 102, 0}, // LED#: 3, Color: Orange, note: A
-  {4, 255, 255, 51}, // LED#: 4, Color: Yellow, note: G#
-  {5, 0, 255, 0}, // LED#: 5, Color: Green, note: G
-  {7, 0, 0, 255}, // LED#: 7, Color: Blue, note: F
-  {8, 127, 0, 255}, // LED#: 8, Color: Violet, note: E
-  {9, 255, 255, 255}, // LED#: 9, Color: White, note: D
+// maps LED numbers and their RGB values to notes; this matrix is in order of increasing frequency 
+int note2LED[13][4] = {
+  {9, 30, 30, 30}, // LED#: 9, Color: White, note: D4
+  {8, 75, 0, 130}, // LED#: 8, Color: Violet, note: E4
+  {7, 25, 25, 112}, // LED#: 7, Color: Blue light, note: F4
+  {5, 60, 185, 113}, // LED#: 5, Color: Green light, note: G4
+  {3, 224, 102, 0}, // LED#: 3, Color: Orange light, note: A4
+  {2, 255, 99, 80}, // LED#: 2, Color: Maroon, note: B4
+  {0, 255, 0, 255}, // LED#: 0, Color: Pink, note: C5
+  {9, 255, 255, 255}, // LED#: 9, Color: White, note: D5
+  {8, 200, 0, 200}, // LED#: 8, Color: Violet, note: E5
+  {7, 0, 0, 255}, // LED#: 7, Color: Blue, note: F5
+  {5, 0, 255, 0 }, // LED#: 5, Color: Green, note: G5
+  {3, 255, 69, 0}, // LED#: 3, Color: Orange strong, note: A5
+  {2, 255, 0, 0}, // LED#: 2, Color: Red, note: B5
 };
 
 
-//Map bins to frequencies of the human vocal range
-int bin2freq[12][5] = {
-  {2, 0}, // anything lower than G4 (? notes)
-  {3, 390}, // G4 - C5 (6 notes)
-  {4, 530}, // C#5 - E5 (4 notes)
-  {5, 670}, // F5 - G5 (3 notes)
-  {6, 820}, // G#5 - A#5 (3 notes)
-  {7, 970}, // B5 - C#6 (3 notes)
-  {8, 1150}, // D6 - D#6 (2 notes)
-  {9, 1260}, // E6 - F6 (2 notes)
-  {10, 1410}, // F#6 - G6 (2 notes)
-  {11, 1580}, // G#6 ( 1 note)
-  {12, 1720}, // A6 - A#6 (2 notes)
-  {13, 1900}, // anything higher than B6 (? notes)
+//Map bins to frequencies of the human vocal range as well as the note2LED rox indices corresponding to notes encompassed in the bin
+int bin2freq[12][4] = {
+  {2, 0, 0, 2}, // D4 - F4 (3 notes)
+  {3, 390, 3, 6}, // G4 - C5 (6 notes)
+  {4, 530, 7, 8}, // C#5 - E5 (4 notes)
+  {5, 670, 9, 10}, // F5 - G5 (3 notes)
+  {6, 820, 11, 11}, // G#5 - A#5 (3 notes)
+  {7, 970, 12, 12}, // B5 - C#6 (3 notes)
+  {8, 1150,12, 12}, // D6 - D#6 (2 notes)
+  {9, 1260,12, 12}, // E6 - F6 (2 notes)
+  {10,1410,12,12}, // F#6 - G6 (2 notes)
+  {11, 1580,12,12}, // G#6 ( 1 note)
+  {12, 1720,12,12}, // A6 - A#6 (2 notes)
+  {13, 1900,12,12}, // anything higher than B6 (? notes)
 };
 
 
@@ -88,9 +94,11 @@ void loop() {
   uint16_t spectrum[BINS];     // FFT spectrum output buffer
   uint16_t avg[BINS];          // The average of FRAME "listens"
 
+  slideSwitch = CircuitPlayground.slideSwitch(); //read the switch position; This allows user to indicate whether they would like Recognition or Recall mode
+
 
   // FIRST, generate a random number. This will be your new musical note
-  // however only generate a new random number in the sequence, if it is a new round (i.e. you have zero errors)
+  // however only generate a new note, if it is a new round (i.e. you have zero errors OR you messed up 3 times and are trying out a new note)
   if (ecount == 0) {
     randNumber = random(0, 12); //chooses a random number between 0 and 12; This will correspond to the frequency played by the CP
   }
@@ -104,11 +112,24 @@ void loop() {
 
 
 
-  // SECOND, play the note
-  CircuitPlayground.setPixelColor(note2LED[freq[randNumber][1]][0], note2LED[freq[randNumber][1]][1], note2LED[freq[randNumber][1]][2], note2LED[freq[randNumber][1]][3] );
-  CircuitPlayground.playTone(freq[randNumber][0], 2000);
+  // SECOND, play OR show the note depending on the mode (recognition will play and show; recall will only show)
+  
+
+  
+  //if slideSwitch is positive, play the tone! this is recognition mode
+  if (slideSwitch){
+    // to call each variable needed for pixel color setting your main source of info is the note2LED mapping matrix; the row within the note2LED matrix depends on the frequency played 
+    CircuitPlayground.setPixelColor(note2LED[freq[randNumber][1]][0], note2LED[freq[randNumber][1]][1], note2LED[freq[randNumber][1]][2], note2LED[freq[randNumber][1]][3] );
+    CircuitPlayground.playTone(freq[randNumber][0], 2000);
+  }
+  else {
+    // to call each variable needed for pixel color setting your main source of info is the note2LED mapping matrix; the row within the note2LED matrix depends on the frequency played 
+    CircuitPlayground.setPixelColor(note2LED[freq[randNumber][1]][0], note2LED[freq[randNumber][1]][1], note2LED[freq[randNumber][1]][2], note2LED[freq[randNumber][1]][3] );
+  }
+
   delay(500);
   CircuitPlayground.clearPixels();
+  
 
 
   // THIRD, within a set amount of time, wait for user feedback
@@ -166,6 +187,10 @@ void loop() {
       }
     }
 
+
+    // display the LED corresponding to the bin you are singing
+    
+    
     // compile sum for average (average is taken outside the loop... a few lines down)
     maxIndex_avg = maxIndex_avg + maxIndex;
     // take a NEW snapshot of what time is it so you can run a comparison to the time you started the WHILE loop
