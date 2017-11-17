@@ -43,7 +43,7 @@ int freq[13][2] = {
   {987, 12},  //B5
 };
 
-// maps LED numbers and their RGB values to notes; this matrix is in order of increasing frequency 
+// maps LED numbers and their RGB values to notes; this matrix is in order of increasing frequency
 int note2LED[13][4] = {
   {9, 30, 30, 30}, // LED#: 9, Color: White, note: D4
   {8, 75, 0, 130}, // LED#: 8, Color: Violet, note: E4
@@ -69,12 +69,12 @@ int bin2freq[12][4] = {
   {5, 670, 9, 10}, // F5 - G5 (3 notes)
   {6, 820, 11, 11}, // G#5 - A#5 (3 notes)
   {7, 970, 12, 12}, // B5 - C#6 (3 notes)
-  {8, 1150,12, 12}, // D6 - D#6 (2 notes)
-  {9, 1260,12, 12}, // E6 - F6 (2 notes)
-  {10,1410,12,12}, // F#6 - G6 (2 notes)
-  {11, 1580,12,12}, // G#6 ( 1 note)
-  {12, 1720,12,12}, // A6 - A#6 (2 notes)
-  {13, 1900,12,12}, // anything higher than B6 (? notes)
+  {8, 1150, 12, 12}, // D6 - D#6 (2 notes)
+  {9, 1260, 12, 12}, // E6 - F6 (2 notes)
+  {10, 1410, 12, 12}, // F#6 - G6 (2 notes)
+  {11, 1580, 12, 12}, // G#6 ( 1 note)
+  {12, 1720, 12, 12}, // A6 - A#6 (2 notes)
+  {13, 1900, 12, 12}, // anything higher than B6 (? notes)
 };
 
 
@@ -100,7 +100,7 @@ void loop() {
   // FIRST, generate a random number. This will be your new musical note
   // however only generate a new note, if it is a new round (i.e. you have zero errors OR you messed up 3 times and are trying out a new note)
   if (ecount == 0) {
-    randNumber = random(0, 12); //chooses a random number between 0 and 12; This will correspond to the frequency played by the CP
+    randNumber = 10;//random(0, 12); //chooses a random number between 0 and 12; This will correspond to the frequency played by the CP
   }
   delay(2000);
 
@@ -113,23 +113,23 @@ void loop() {
 
 
   // SECOND, play OR show the note depending on the mode (recognition will play and show; recall will only show)
-  
 
-  
+
+
   //if slideSwitch is positive, play the tone! this is recognition mode
-  if (slideSwitch){
-    // to call each variable needed for pixel color setting your main source of info is the note2LED mapping matrix; the row within the note2LED matrix depends on the frequency played 
+  if (slideSwitch) {
+    // to call each variable needed for pixel color setting your main source of info is the note2LED mapping matrix; the row within the note2LED matrix depends on the frequency played
     CircuitPlayground.setPixelColor(note2LED[freq[randNumber][1]][0], note2LED[freq[randNumber][1]][1], note2LED[freq[randNumber][1]][2], note2LED[freq[randNumber][1]][3] );
     CircuitPlayground.playTone(freq[randNumber][0], 2000);
   }
   else {
-    // to call each variable needed for pixel color setting your main source of info is the note2LED mapping matrix; the row within the note2LED matrix depends on the frequency played 
+    // to call each variable needed for pixel color setting your main source of info is the note2LED mapping matrix; the row within the note2LED matrix depends on the frequency played
     CircuitPlayground.setPixelColor(note2LED[freq[randNumber][1]][0], note2LED[freq[randNumber][1]][1], note2LED[freq[randNumber][1]][2], note2LED[freq[randNumber][1]][3] );
   }
 
   delay(500);
   CircuitPlayground.clearPixels();
-  
+
 
 
   // THIRD, within a set amount of time, wait for user feedback
@@ -189,8 +189,8 @@ void loop() {
 
 
     // display the LED corresponding to the bin you are singing
-    
-    
+
+
     // compile sum for average (average is taken outside the loop... a few lines down)
     maxIndex_avg = maxIndex_avg + maxIndex;
     // take a NEW snapshot of what time is it so you can run a comparison to the time you started the WHILE loop
@@ -213,8 +213,59 @@ void loop() {
   while (freq[randNumber][0] > bin2freq[i][1]) {
     i = i + 1;
   }
+  int cp_bin = bin2freq[i - 1][0];
   Serial.print("The Cp tone's bin: ");
   Serial.println(bin2freq[i - 1][0]);
+
+  // give visual feedback on how your voice compared to the tone played by the CP
+
+  if (maxIndex_avg < cp_bin) { //if you sang too low, you need to sing higher
+
+    // set starting pixel as LED that corresponds to the note that corresponds to the bin you sang (use mapping matrices!)
+    int pixel1 = note2LED[ bin2freq[maxIndex_avg - 2][2] ][0];
+    int pixel2 = pixel1 - 1;
+
+    //set color to that corresponding to the target note
+    int color [1][3] = {
+      {note2LED[freq[randNumber][1]][1], note2LED[freq[randNumber][1]][2], note2LED[freq[randNumber][1]][3]}
+    };
+
+    // calculate steps to get to target note (note the cp played); the "steps" corresponds to the number of LEDs that need to light up
+    int diff_LED = pixel1 - note2LED[ freq[randNumber][1] ][0];
+
+    if (diff_LED < 0) {
+      diff_LED = 10 + diff_LED;
+    }
+    Serial.println("pixel1 = ");
+    Serial.println(pixel1);
+    Serial.println("diff_LED = ");
+    Serial.println(diff_LED);
+
+    // create a loop to display the LEDs in clockwise fashion from your lowest note to the target note
+    for (i = 0; i < diff_LED; i++) {
+
+      // Turn off all the NeoPixels
+      CircuitPlayground.clearPixels();
+
+      // Turn on two pixels to COLOR
+      CircuitPlayground.setPixelColor(pixel1, color[0][0], color[0][1], color[0][2]);
+      CircuitPlayground.setPixelColor(pixel2, color[0][0], color[0][1], color[0][2]);
+
+      // Increment pixels to move them around the board
+      pixel1 = pixel1 - 1;
+      pixel2 = pixel2 - 1;
+
+      // Check pixel values
+      if (pixel1 < 0) pixel1 = 9;
+      if (pixel2 < 0) pixel2 = 9;
+
+      delay(400);
+    }
+    CircuitPlayground.clearPixels();
+    CircuitPlayground.setPixelColor(pixel1, color[0][0], color[0][1], color[0][2]);
+
+  }
+
 
   //determine if what you sang is within the frequency range played by the CP
   if (maxIndex_avg != bin2freq[i - 1][0]) {
