@@ -1,4 +1,3 @@
-
 // Voice Trainer
 // The purpose of this program is to train the human voice to match and recall pitch.
 // The CircuitPlayground uses its speakers to play a musical note, then records the user's voice, performs an fft and determines if the notes match.
@@ -100,7 +99,7 @@ void loop() {
   // FIRST, generate a random number. This will be your new musical note
   // however only generate a new note, if it is a new round (i.e. you have zero errors OR you messed up 3 times and are trying out a new note)
   if (ecount == 0) {
-    randNumber = 10;//random(0, 12); //chooses a random number between 0 and 12; This will correspond to the frequency played by the CP
+    randNumber = random(0, 12); //chooses a random number between 0 and 12; This will correspond to the frequency played by the CP
   }
   delay(2000);
 
@@ -188,9 +187,6 @@ void loop() {
     }
 
 
-    // display the LED corresponding to the bin you are singing
-
-
     // compile sum for average (average is taken outside the loop... a few lines down)
     maxIndex_avg = maxIndex_avg + maxIndex;
     // take a NEW snapshot of what time is it so you can run a comparison to the time you started the WHILE loop
@@ -217,7 +213,9 @@ void loop() {
   Serial.print("The Cp tone's bin: ");
   Serial.println(bin2freq[i - 1][0]);
 
-  // give visual feedback on how your voice compared to the tone played by the CP
+
+
+  // NEXT, give visual feedback on how your voice compared to the tone played by the CP
 
   if (maxIndex_avg < cp_bin) { //if you sang too low, you need to sing higher
 
@@ -267,6 +265,56 @@ void loop() {
   }
 
 
+  if (maxIndex_avg > cp_bin) { //if you sang too high, you need to sing lower
+
+    // set starting pixel as LED that corresponds to the note that corresponds to the bin you sang (use mapping matrices!)
+    int pixel1 = note2LED[ bin2freq[maxIndex_avg - 2][2] ][0];
+    int pixel2 = pixel1 + 1; // set pixel two as one LED in the direction you will travel (counterclockwise, increasing LED #)
+
+    //set color to that corresponding to the target note
+    int color [1][3] = {
+      {note2LED[freq[randNumber][1]][1], note2LED[freq[randNumber][1]][2], note2LED[freq[randNumber][1]][3]}
+    };
+
+    // calculate steps to get to target note (note the cp played); the "steps" corresponds to the number of LEDs that need to light up
+    int diff_LED = note2LED[ freq[randNumber][1] ][0] - pixel1;
+
+    if (diff_LED < 0) {
+      diff_LED = 10 + diff_LED;
+    }
+    Serial.println("pixel1 = ");
+    Serial.println(pixel1);
+    Serial.println("diff_LED = ");
+    Serial.println(diff_LED);
+
+    // create a loop to display the LEDs in counterclockwise fashion from your lowest note to the target note
+    for (i = 0; i < diff_LED; i++) {
+
+      // Turn off all the NeoPixels
+      CircuitPlayground.clearPixels();
+
+      // Turn on two pixels to COLOR
+      CircuitPlayground.setPixelColor(pixel1, color[0][0], color[0][1], color[0][2]);
+      CircuitPlayground.setPixelColor(pixel2, color[0][0], color[0][1], color[0][2]);
+
+      // Increment pixels to move them around the board
+      pixel1 = pixel1 + 1;
+      pixel2 = pixel2 + 1;
+
+      // Check pixel values
+      if (pixel1 > 9) pixel1 = 0;
+      if (pixel2 > 9) pixel2 = 0;
+
+      delay(400);
+    }
+    CircuitPlayground.clearPixels();
+    CircuitPlayground.setPixelColor(pixel1, color[0][0], color[0][1], color[0][2]);
+
+  }
+
+
+
+
   //determine if what you sang is within the frequency range played by the CP
   if (maxIndex_avg != bin2freq[i - 1][0]) {
     ecount = ecount + 1;
@@ -298,3 +346,4 @@ void loop() {
 
 
 }
+
