@@ -44,19 +44,20 @@ int freq[13][2] = {
 
 // maps LED numbers and their RGB values to notes; this matrix is in order of increasing frequency
 int note2LED[13][4] = {
-  {9, 30, 30, 30}, // LED#: 9, Color: White, note: D4
-  {8, 75, 0, 130}, // LED#: 8, Color: Violet, note: E4
-  {7, 25, 25, 112}, // LED#: 7, Color: Blue light, note: F4
-  {5, 60, 185, 113}, // LED#: 5, Color: Green light, note: G4
-  {3, 224, 102, 0}, // LED#: 3, Color: Orange light, note: A4
-  {2, 255, 99, 80}, // LED#: 2, Color: Maroon, note: B4
-  {0, 255, 0, 255}, // LED#: 0, Color: Pink, note: C5
+  {9, 255, 0, 0}, // LED#: 9, Color: Red, note: D4
+   // {4, 255, 255, 51}, // LED#: 4, Color: Yellow, note: G5
+  {8, 255, 0, 0}, // LED#: 8, Color: Red, note: E4
+  {7, 255, 0, 0}, // LED#: 7, Color: Red, note: F4
+  {5, 255, 0, 0}, // LED#: 5, Color: Red, note: G4
+  {3, 255, 0, 0}, // LED#: 3, Color: Red, note: A4
+  {2, 255, 0, 0}, // LED#: 2, Color: Red, note: B4
+  {0, 255, 0, 0}, // LED#: 0, Color: Red, note: C5
   {9, 255, 255, 255}, // LED#: 9, Color: White, note: D5
   {8, 200, 0, 200}, // LED#: 8, Color: Violet, note: E5
   {7, 0, 0, 255}, // LED#: 7, Color: Blue, note: F5
   {5, 0, 255, 0 }, // LED#: 5, Color: Green, note: G5
-  {3, 255, 69, 0}, // LED#: 3, Color: Orange strong, note: A5
-  {2, 255, 0, 0}, // LED#: 2, Color: Red, note: B5
+  {3, 255, 69, 0}, // LED#: 3, Color: Orange, note: A5
+  {2, 255, 255, 51}, // LED#: 2, Color: Yellow, note: B5
 };
 
 
@@ -124,6 +125,7 @@ void loop() {
   else {
     // to call each variable needed for pixel color setting your main source of info is the note2LED mapping matrix; the row within the note2LED matrix depends on the frequency played
     CircuitPlayground.setPixelColor(note2LED[freq[randNumber][1]][0], note2LED[freq[randNumber][1]][1], note2LED[freq[randNumber][1]][2], note2LED[freq[randNumber][1]][3] );
+    delay(2000);
   }
 
   delay(500);
@@ -252,6 +254,7 @@ void loop() {
       // Increment pixels to move them around the board
       pixel1 = pixel1 - 1;
       pixel2 = pixel2 - 1;
+      delay(500);
 
       // Check pixel values
       if (pixel1 < 0) pixel1 = 9;
@@ -261,14 +264,13 @@ void loop() {
     }
     CircuitPlayground.clearPixels();
     CircuitPlayground.setPixelColor(pixel1, color[0][0], color[0][1], color[0][2]);
-
   }
 
 
   if (maxIndex_avg > cp_bin) { //if you sang too high, you need to sing lower
 
-    // set starting pixel as LED that corresponds to the note that corresponds to the bin you sang (use mapping matrices!)
-    int pixel1 = note2LED[ bin2freq[maxIndex_avg - 2][2] ][0];
+    // set starting pixel as LED that corresponds to the highest note within the bin you sang in (use mapping matrices!)
+    int pixel1 = note2LED[ bin2freq[maxIndex_avg - 2][3] ][0];
     int pixel2 = pixel1 + 1; // set pixel two as one LED in the direction you will travel (counterclockwise, increasing LED #)
 
     //set color to that corresponding to the target note
@@ -300,6 +302,7 @@ void loop() {
       // Increment pixels to move them around the board
       pixel1 = pixel1 + 1;
       pixel2 = pixel2 + 1;
+      delay(500);
 
       // Check pixel values
       if (pixel1 > 9) pixel1 = 0;
@@ -309,10 +312,10 @@ void loop() {
     }
     CircuitPlayground.clearPixels();
     CircuitPlayground.setPixelColor(pixel1, color[0][0], color[0][1], color[0][2]);
-
   }
 
 
+  CircuitPlayground.clearPixels();
 
 
   //determine if what you sang is within the frequency range played by the CP
@@ -346,4 +349,3 @@ void loop() {
 
 
 }
-
