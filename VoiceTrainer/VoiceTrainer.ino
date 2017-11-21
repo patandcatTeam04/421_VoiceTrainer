@@ -322,7 +322,7 @@ void loop() {
   if (maxIndex_avg != bin2freq[i - 1][0]) {
     ecount = ecount + 1;
     noerror = 0;
-    Serial.println("you bad");
+    Serial.println("Close but no cigar. Try again!");
     Serial.println(" ");
   }
 
@@ -330,18 +330,49 @@ void loop() {
   // LASTLY, advance the round index if you have no errors
   if (noerror == 1) {
     ecount = 0;
-    maxtime = maxtime + 650; // give the user a bit more time for each new round so they can press more buttons
+    maxtime = maxtime + 650; // give the user a bit more time for each new round
     Serial.println("You're a star!");
     Serial.println(" ");
+    // play the victory sound (McDonald's I'm Lovin' It jingle)
+      // display a circle of rainbow LEDs as the jingle progresses
+      CircuitPlayground.setPixelColor(0, 255, 0, 0);
+      CircuitPlayground.playTone(196, 200);
+      CircuitPlayground.setPixelColor(1, 255, 100, 0);
+      CircuitPlayground.playTone(220, 200);
+      delay(200);
+      CircuitPlayground.setPixelColor(2, 255, 255, 0);
+      CircuitPlayground.playTone(246.94, 200);
+      delay(200);
+      CircuitPlayground.setPixelColor(3, 154, 205, 50);
+      CircuitPlayground.playTone(329.63, 200); //E
+      delay(200);
+      CircuitPlayground.setPixelColor(4, 0, 128, 0);
+      CircuitPlayground.playTone(293.66, 700); //D
+      delay(250);
+      CircuitPlayground.setPixelColor(5, 0, 128, 0);
+      delay(250);
+      CircuitPlayground.setPixelColor(6, 72, 209, 204);
+      CircuitPlayground.playTone(246.94, 200);
+      delay(50);
+      CircuitPlayground.setPixelColor(7, 0, 0, 255);
+      CircuitPlayground.playTone(220, 200);
+      delay(50);
+      CircuitPlayground.setPixelColor(8, 139, 0, 139);
+      CircuitPlayground.playTone(196, 200);
+      delay(50);
+      CircuitPlayground.setPixelColor(9, 199, 21, 133);
+      CircuitPlayground.playTone(196, 200);
+      CircuitPlayground.clearPixels();
 
+      //reset the game!
     //reset the game!
     noerror = 1;
     ecount = 0;
   }
 
 
-  // once you get 3 errors, RESET
-  if (ecount >= 3) {
+  // once you get 4 errors, RESET
+  if (ecount >= 4) {
     ecount = 0;
     noerror = 1;
     maxtime = 3000;
